@@ -2,6 +2,9 @@ from tkinter import *
 from tkinter import ttk
 from alarm_clock import Examination
 from tkinter import messagebox
+from sound import SoundAlarm
+from threading import Thread
+
 
 class MainWindow:
     def draw_main(self):
@@ -38,28 +41,31 @@ class MainWindow:
         launch.grid(row=3, column=0, columnspan=3, pady=10)
 
         self.root.mainloop()
+    
         
     def __button_processing(self):
         time = Examination()
-        user_houre = self.houre.get()
-        user_minute = self.minutes.get()
+        self.go_sound = SoundAlarm()
+        try:
+            user_houre = self.houre.get()
+            user_minute = self.minutes.get()
+            self.time_check = time.check(int(user_houre), int(user_minute))
+        except:
+            messagebox.showerror("Будильник", 
+         
+                                 "Вы ввели значения которые невозможно представить в виде врмени")
         
-        self.__eme_app()
+        output_stream = Thread(target=self.__ex_sound)
+        sound_steram = Thread(target=self.go_sound.run_sound)
         
-        self.time_check = time.check(int(user_houre), int(user_minute))
+        output_stream.start()
+        sound_steram.start()
+    
         
-        self.__ex_app()
-        
-    def __ex_app(self):
+    def __ex_sound(self):
         if self.time_check == True:
-            exit_app = messagebox.askokcancel("Будильник", "ВРЕМЯ! Хотите выйти?")
+            exit_sound = messagebox.askokcancel("Будильник", "ВРЕМЯ! Остановить звук?")
             
-            if exit_app == True:
-                self.root.destroy()
-                
-    def __eme_app(self):
-        emergency_exit = messagebox.askyesno("Будильник", 
-                            "Вы поставили время. Если хотите выйти заранее нажмите Yes")
+        if exit_sound == True:
+            self.go_sound.stop_sound()
         
-        if emergency_exit == True:
-            self.root.destroy()
