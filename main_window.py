@@ -68,4 +68,3 @@ class MainWindow:
             
         if exit_sound == True:
             self.go_sound.stop_sound()
-        
