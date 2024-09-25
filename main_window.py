@@ -1,70 +1,76 @@
-from tkinter import *
-from tkinter import ttk
 from alarm_clock import Examination
-from tkinter import messagebox
 from sound import SoundAlarm
-from threading import Thread
+from PySide6 import QtWidgets
+import threading
 
 
 class MainWindow:
     def draw_main(self):
-        self.root = Tk()
-        self.root.title("Будильник")
-        self.root.columnconfigure(0, weight=1)
-        self.root.rowconfigure(0, weight=1)
+        self.app = QtWidgets.QApplication([])
+        window = QtWidgets.QWidget()
+        window.setWindowTitle("Будильник")
         
-        frm = ttk.Frame(self.root, padding=10)
-        frm.grid(sticky="nsew")
+        box_of_elements = QtWidgets.QVBoxLayout()
+        horizontal_view = QtWidgets.QGridLayout()
         
-
-        frm.columnconfigure(0, weight=1)
-        frm.columnconfigure(1, weight=1)
-        frm.columnconfigure(2, weight=1)
-
-        greetings = Label(frm, text="Будильник", font=('', 15), fg='white', bg="black")
-        greetings.grid(row=0, column=0, columnspan=3, pady=10, sticky="nsew")
-
-        instructions = Label(frm, text="Введите время", font=('', 15), fg='white', bg="black")
-        instructions.grid(row=1, column=0, columnspan=3, pady=10, sticky="nsew")
-
-        self.houre = Entry(frm, width=10)
-        self.houre.grid(row=2, column=0, padx=10, pady=10, sticky="e")
-
-        colon = Label(frm, text=":", font=('', 15))
-        colon.grid(row=2, column=1, padx=10, pady=10)
-
-        self.minutes = Entry(frm, width=10)
-        self.minutes.grid(row=2, column=2, padx=10, pady=10, sticky="w")
-
-        launch = Button(frm, text="Завести будильник", 
-                        font=('', 15), command=self.__button_processing)
-        launch.grid(row=3, column=0, columnspan=3, pady=10)
-
-        self.root.mainloop()
-    
+        greetings = QtWidgets.QLabel("Будильник")
+        time_setting = QtWidgets.QPushButton("Завести время")
+        self.hours = QtWidgets.QLineEdit()
+        colon = QtWidgets.QLabel(":")
+        self.minute = QtWidgets.QLineEdit()
         
-    def __button_processing(self):
-        time = Examination()
-        self.go_sound = SoundAlarm()
+        horizontal_view.addWidget(self.hours, 1, 0)
+        horizontal_view.addWidget(colon, 1, 1)
+        horizontal_view.addWidget(self.minute, 1, 2)
+        
+        box_of_elements.addWidget(greetings)
+        box_of_elements.addLayout(horizontal_view)
+        box_of_elements.addWidget(time_setting)
+        
+        time_setting.clicked.connect(self.click_processing)
+        
+        window.setLayout(box_of_elements)
+        
+        window.show()
+        self.app.exec()
+        
+    def click_processing(self):
+        user = self.get_user_time()
+        if user is not None:
+            self.run = threading.Thread(target=self.installation, args=(user[0], user[1],))
+            self.run.start()
+
+    def get_user_time(self):
         try:
-            user_houre = self.houre.get()
-            user_minute = self.minutes.get()
-            self.time_check = time.check(int(user_houre), int(user_minute))
-        except:
-            messagebox.showerror("Будильник", 
-         
-                                 "Вы ввели значения которые невозможно представить в виде врмени")
-        
-        output_stream = Thread(target=self.__ex_sound)
-        sound_steram = Thread(target=self.go_sound.run_sound)
-        
-        output_stream.start()
-        sound_steram.start()
-    
-        
-    def __ex_sound(self):
-        if self.time_check == True:
-            exit_sound = messagebox.askokcancel("Будильник", "ВРЕМЯ! Остановить звук?")
+            hour = int(self.hours.text())
+            minute = int(self.minute.text())
+            return [hour, minute]
+        except ValueError:
+            msg = QtWidgets.QMessageBox()
+            msg.setText("Вводить можно только числа")
+            msg.exec()
+            return None
+
+    def installation(self, hour, minute):
+        control = Examination()
+        time_up = control.check(hour, minute)
+        if time_up:
+            self.sound_alarm = SoundAlarm()
+            self.sound_alarm.run_sound()
+
+            self.msg = QtWidgets.QMessageBox()
+            self.msg.setText("Время! После нажатия кнопки будильник выключится")
+            self.msg.buttonClicked.connect(self.stop_alarm)
+            self.msg.exec()
+
+    def stop_alarm(self):
+        if self.sound_alarm is not None:
+            self.sound_alarm.stop_sound()
+            self.msg.destroy()
+            self.app.exit()
             
-        if exit_sound == True:
-            self.go_sound.stop_sound()
+            
+
+        
+        
+        

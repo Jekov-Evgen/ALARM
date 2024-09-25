@@ -1,5 +1,4 @@
 import pyglet
-import sys
 
 
 class SoundAlarm:
@@ -12,4 +11,3 @@ class SoundAlarm:
     
     def stop_sound(self):
         self.player.delete()
-        sys.exit()

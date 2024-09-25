@@ -10,7 +10,7 @@ class Examination:
         
         while user != system:
             system = time.get_system_time()
-            sleep(5)
+            sleep(1)
             
         return True
             
