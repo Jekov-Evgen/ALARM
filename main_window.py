@@ -1,7 +1,7 @@
 from alarm_clock import Examination
 from sound import SoundAlarm
-from PySide6 import QtWidgets
-import threading
+from PySide6 import QtWidgets, QtCore, QtGui
+from app_style import STYLE_LABEL, STYLE_ENTRY, STYLE_COLON, STYLE_BUTTON, STYLE_MESSAGEBOX
 
 
 class MainWindow:
@@ -9,11 +9,15 @@ class MainWindow:
         self.app = QtWidgets.QApplication([])
         window = QtWidgets.QWidget()
         window.setWindowTitle("Будильник")
+        icon = QtGui.QIcon("icon.ico")
+        window.setWindowIcon(icon)
         
         box_of_elements = QtWidgets.QVBoxLayout()
         horizontal_view = QtWidgets.QGridLayout()
         
         greetings = QtWidgets.QLabel("Будильник")
+        greetings.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop)
+        
         time_setting = QtWidgets.QPushButton("Завести время")
         self.hours = QtWidgets.QLineEdit()
         colon = QtWidgets.QLabel(":")
@@ -30,6 +34,12 @@ class MainWindow:
         time_setting.clicked.connect(self.click_processing)
         
         window.setLayout(box_of_elements)
+        
+        greetings.setStyleSheet(STYLE_LABEL)
+        colon.setStyleSheet(STYLE_COLON)
+        self.hours.setStyleSheet(STYLE_ENTRY)
+        self.minute.setStyleSheet(STYLE_ENTRY)
+        time_setting.setStyleSheet(STYLE_BUTTON)
         
         window.show()
         self.app.exec()
@@ -55,7 +65,11 @@ class MainWindow:
         if time_up:
             self.sound_alarm = SoundAlarm()
             self.sound_alarm.run_sound()
+            
             self.msg = QtWidgets.QMessageBox()
+            self.msg.setStyleSheet(STYLE_MESSAGEBOX)
+            icon = QtGui.QIcon("icon.ico")
+            self.msg.setWindowIcon(icon)
             self.msg.setText("Время! После нажатия кнопки будильник выключится")
             self.msg.buttonClicked.connect(self.stop_alarm)
             self.msg.exec()
