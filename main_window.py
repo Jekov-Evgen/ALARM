@@ -36,9 +36,7 @@ class MainWindow:
         
     def click_processing(self):
         user = self.get_user_time()
-        if user is not None:
-            self.run = threading.Thread(target=self.installation, args=(user[0], user[1],))
-            self.run.start()
+        self.installation(user[0], user[1])
 
     def get_user_time(self):
         try:
@@ -57,7 +55,6 @@ class MainWindow:
         if time_up:
             self.sound_alarm = SoundAlarm()
             self.sound_alarm.run_sound()
-
             self.msg = QtWidgets.QMessageBox()
             self.msg.setText("Время! После нажатия кнопки будильник выключится")
             self.msg.buttonClicked.connect(self.stop_alarm)
@@ -67,7 +64,6 @@ class MainWindow:
         if self.sound_alarm is not None:
             self.sound_alarm.stop_sound()
             self.msg.destroy()
-            self.app.exit()
             
             
 
