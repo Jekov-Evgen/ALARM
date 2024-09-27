@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "Time.h"
 #include <ctime>
-#include <string>
 
 
 extern "C" __declspec(dllexport) const char* GetTime() {
