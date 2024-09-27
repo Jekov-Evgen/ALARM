@@ -1,5 +1,6 @@
 from main_window import MainWindow
 
 
-start = MainWindow()
-start.draw_main()
+if __name__ == '__main__':
+    start = MainWindow()
+    start.draw_main()

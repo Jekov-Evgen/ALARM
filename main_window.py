@@ -52,10 +52,15 @@ class MainWindow:
         try:
             hour = int(self.hours.text())
             minute = int(self.minute.text())
+            if ((hour > 23 or hour < 0) or (minute > 59 or minute < 0)):
+                raise ValueError
+            
             return [hour, minute]
         except ValueError:
             msg = QtWidgets.QMessageBox()
-            msg.setText("Вводить можно только числа")
+            icon = QtGui.QIcon("icon.ico")
+            msg.setWindowIcon(icon)
+            msg.setText("Вводить можно только числа, в пределах 23 для часов и 59 для минут")
             msg.exec()
             return None
 
